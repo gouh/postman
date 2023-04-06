@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  proxy-reverse:
+    image: jwilder/nginx-proxy
+    container_name: postmanapp-proxy-reverse
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - '/var/run/docker.sock:/tmp/docker.sock:ro'
+    network_mode: "bridge"
+  app:
+    container_name: postmanapp-server
+    image: postmanapp:dev
+    build:
+      context: ./
+    environment:
+      - VIRTUAL_HOST=postmanapp.localhost
+      - VIRTUAL_PORT=3000
+    volumes:
+      - './:/app'
+      - /app/node_modules
+    depends_on:
+      - proxy-reverse
+    network_mode: "bridge"
